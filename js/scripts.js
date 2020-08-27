@@ -1,5 +1,4 @@
-let GAME = new Game();
-let DIE = 0
+
 
 function Game () {
 this.players = []; //[tom, bob]
@@ -34,7 +33,7 @@ Game.prototype.resetGame = function () {
 Game.prototype.rollDice = function() {
   return Math.floor(Math.random() * 6) + 1; 
 }
-Game.prototype.turn = function () {
+Game.prototype.turn = function (GAME) {
   
   if(DICE === 1) {
     return false;
@@ -70,7 +69,7 @@ Player.prototype.totalScore = function () {
   return this.score + this.turnScore;
 }
 //dom = $('#playerScoreList')
-function updatePlayerListScore (dom) {
+function updatePlayerListScore (dom, GAME) {
   dom.text('');
   if(GAME.playerCount > 0){
   for(let i = 0; i < GAME.playerCount; i++) {
@@ -84,7 +83,7 @@ function updatePlayerListScore (dom) {
   dom.text('');
 }
 }
-function updateDropdown (dom) {
+function updateDropdown (dom, GAME) {
   dom.text('');
   // for(let i = 0; i < GAME.playerCount; i++) {
   //    dom.append('<option value="' + i + '">' + GAME.players[i].name + '</option>');
@@ -94,7 +93,7 @@ function updateDropdown (dom) {
  }
 }
 
-function displayCurrentPlayerTurn () {
+function displayCurrentPlayerTurn (GAME) {
  
  let i = GAME.currentPlayerIndex;
  if(GAME.playerCount === 0)
@@ -128,6 +127,8 @@ function swapColor () {
 
 
 $(document).ready(function () {
+  let GAME = new Game();
+  let DIE = 0;
   $('#holdButton').prop('disabled','true');
 
 $('#settingsButton').click(function () {
@@ -141,9 +142,9 @@ $('#deleteButton').click(function () {
     let playerDeletedIndex = $('#playersSelect option:selected').val();
     GAME.players.splice(playerDeletedIndex,1);
     GAME.playerCount--;
-    updateDropdown($('#playersSelect'));
-    displayCurrentPlayerTurn();
-    updatePlayerListScore ($('#playerScoreList'));
+    updateDropdown($('#playersSelect'), GAME);
+    displayCurrentPlayerTurn(GAME);
+    updatePlayerListScore ($('#playerScoreList'),GAME);
   }
 });
 
@@ -153,14 +154,14 @@ $("#addPlayerForm").submit(function() {
   $("input#addNewPlayer").val("");
   GAME.addPlayer(new Player(inputtedPlayer));
   GAME.resetGame();
-  updatePlayerListScore ($('#playerScoreList'));
-  displayCurrentPlayerTurn();
+  updatePlayerListScore ($('#playerScoreList'), GAME);
+  displayCurrentPlayerTurn(GAME);
   $('#currentPlayerCard').show();
   $('#gameScoresCard').show();
   $('#newGameButton').show();
 
 
-  updateDropdown($('#playersSelect'));
+  updateDropdown($('#playersSelect'),GAME);
   $('#results').hide();
 
 });
@@ -168,8 +169,8 @@ $("#addPlayerForm").submit(function() {
 $("#newGameButton").click(function () {
   GAME.resetGame();
   $('#holdButton').prop('disabled',true);
-  updatePlayerListScore ($('#playerScoreList'));
-  displayCurrentPlayerTurn();
+  updatePlayerListScore ($('#playerScoreList'),GAME);
+  displayCurrentPlayerTurn(GAME);
   $('#results').hide();
   $('#gameScoresCard').show();
   $('#currentPlayerCard').show();
@@ -179,7 +180,7 @@ $('#rollButton').click(function () {
   DICE = GAME.rollDice();
   $('#diceImg').attr('src', 'img/red_dice'+ DICE + '.png');
   //display dice
-  if(GAME.turn()){
+  if(GAME.turn(GAME)){
     $('#holdButton').prop('disabled',false);
     //alert('test:' + GAME.players[GAME.currentPlayerIndex].totalScore);
     if(GAME.players[GAME.currentPlayerIndex].totalScore() >= 100) {
@@ -188,7 +189,7 @@ $('#rollButton').click(function () {
       $('#winner').text('Congrats ' + GAME.players[GAME.currentPlayerIndex].name + '!');
       GAME.players[GAME.currentPlayerIndex].submitTurnScore();
       //GAME.sortPlayersByScore();
-      updatePlayerListScore ($('#scores'));
+      updatePlayerListScore ($('#scores'), GAME);
       $('#results').show();
       $('#gameScoresCard').hide();
       $('#currentPlayerCard').hide();
@@ -200,15 +201,15 @@ $('#rollButton').click(function () {
     $('#holdButton').prop('disabled',true);
     
   }
-  updatePlayerListScore ($('#playerScoreList'));
-  displayCurrentPlayerTurn();
+  updatePlayerListScore ($('#playerScoreList'), GAME);
+  displayCurrentPlayerTurn(GAME);
 });
 $('#holdButton').click(function () {
   GAME.players[GAME.currentPlayerIndex].submitTurnScore();
   GAME.nextPlayer();
   //swapColor();
-  updatePlayerListScore ($('#playerScoreList'));
-  displayCurrentPlayerTurn();
+  updatePlayerListScore ($('#playerScoreList'), GAME);
+  displayCurrentPlayerTurn(GAME);
   $('#holdButton').prop('disabled',true);
   //$('#holdButton').prop('disabled','true');
 
