@@ -23,17 +23,26 @@
     <div id="setup">
       <form class="form" id="addPlayerForm">
         <div class="form-group">
-          <label for="addNewPlayer" id="addNewPlayerLabel">Add Player</label>
+          <label for="addNewPlayer" id="addNewPlayerLabel" class="setupLabels">Add Player</label>
           <input type="text" class="form-control" id="addNewPlayer">
         </div>
         <button id="addPlayerButton" type="submit" class="btn btn-outline-dark">Add Player</button>
       </form>
+      <hr>
       <!-- <div class="dropdown-menu" id="playersSelect"></div> -->
+      <label for="gameSelect" id="gameSelectLabel" class="setupLabels">Change Game</label>
+      <select class="custom-select" name="players" id="gameSelect">
+        <option value="oneDice">One Dice</option>
+        <option value="twoDice">Two Dice</option>
+      </select>
+      <hr>
+      <label for="deletePlayer" id="deletePlayerLabel" class="setupLabels">Delete Player</label>
       <select class="custom-select" name="players" id="playersSelect"></select>
       <button type='button' class="btn btn-outline-dark" id="deleteButton">Delete Player</button>
     </div>
     <div id='diceDiv'>
-      <img id="diceImg" src="">
+      <img id="dice1Img" src="">
+      <img id="dice2Img" src="">
     </div>
     <div id="gameInfoRow" class="row card-deck">
       <div class="col-6">

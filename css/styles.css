@@ -3,7 +3,7 @@ body{
 }
 
 form{
-  padding-bottom: 50px;
+  /* padding-bottom: 50px; */
 }
 
 h1, p{
@@ -40,6 +40,7 @@ background-color: #f9d5bb;
   background-color: #3c3d47;
   color: #d35656;
   display: none;
+  font-size: 24px;
 
 }
 
@@ -59,7 +60,6 @@ background-color: #f9d5bb;
 #results{
   text-align: center;
   display: none;
- 
 }
 
 #pig-icon{
@@ -81,10 +81,14 @@ background-color: #f9d5bb;
 }
 
 #setup{
-  padding-bottom: 50px;
+  padding: 25px;
+  border-style: solid;
+  border-color: #f66767;
+  border-radius: 5px;
+
 }
 
-#addNewPlayerLabel{
+.setupLabels{
   color:#f66767;
 }
 

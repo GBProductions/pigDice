@@ -4,9 +4,7 @@ function Game () {
 this.players = []; //[tom, bob]
 this.currentPlayerIndex = 0;//   0     1
 this.playerCount = 0;
-//this.gameVariationList = ['default', '2dice'];
-//this.gameVariationSelected = default
-
+this.gameVariation = "oneDice";
 }
 Game.prototype.addPlayer = function (player) {
   this.players.push(player);
@@ -33,16 +31,37 @@ Game.prototype.resetGame = function () {
 Game.prototype.rollDice = function() {
   return Math.floor(Math.random() * 6) + 1; 
 }
-Game.prototype.turn = function (GAME) {
+Game.prototype.turn = function ( DICE) {
   
   if(DICE === 1) {
     return false;
   } else {
-    this.players[GAME.currentPlayerIndex].turnScore += DICE;
+    this.players[this.currentPlayerIndex].turnScore += DICE;
     return true;
   }
-
 }
+
+Game.prototype.twoDiceTurn = function (dice1, dice2) {
+  let diceTotal = dice1 + dice2;
+  if (((dice1 != 1) && (dice2 != 1)) && (dice1 != dice2) ){
+    //GAME.addDiceToTurn(diceTotal)
+    this.players[this.currentPlayerIndex].turnScore += diceTotal;
+    return false;
+  } else if ((dice1 === 1 && dice2 != 1) || (dice1 != 1 && dice2 === 1)) {
+    this.nextPlayer();
+    return true;
+  } else if (dice1 + dice2 === 2) {
+    //GAME.resetCurrentPlayerSCore()
+    this.players[this.currentPlayerIndex].score = 0;
+    this.nextPlayer();
+    return true;
+  } else if ((dice1 === dice2) &&  (dice1 + dice2 > 2)) {
+    //GAME.addDiceToTurn(diceTotal)
+    this.players[this.currentPlayerIndex].turnScore += diceTotal;
+    return true;
+  }
+}
+
 Game.prototype.sortPlayersByScore = function () {
   this.players.sort(function (a,b) {
     return a.score - b.score;
@@ -72,16 +91,16 @@ Player.prototype.totalScore = function () {
 function updatePlayerListScore (dom, GAME) {
   dom.text('');
   if(GAME.playerCount > 0){
-  for(let i = 0; i < GAME.playerCount; i++) {
-    if(i === GAME.currentPlayerIndex) {
-      dom.append('<li><strong>' + GAME.players[i].name + ': ' + GAME.players[i].score + '</strong></li>');
-    }else {
-      dom.append('<li>' + GAME.players[i].name + ': ' + GAME.players[i].score + '</li>');
+    for(let i = 0; i < GAME.playerCount; i++) {
+      if(i === GAME.currentPlayerIndex) {
+        dom.append('<li><strong><u><em>' + GAME.players[i].name + ': ' + GAME.players[i].score + '</em></u></strong></li>');
+      }else {
+        dom.append('<li>' + GAME.players[i].name + ': ' + GAME.players[i].score + '</li>');
+      }
     }
+  }else {
+    dom.text('');
   }
-}else {
-  dom.text('');
-}
 }
 function updateDropdown (dom, GAME) {
   dom.text('');
@@ -128,7 +147,7 @@ function swapColor () {
 
 $(document).ready(function () {
   let GAME = new Game();
-  let DIE = 0;
+  
   $('#holdButton').prop('disabled','true');
 
 $('#settingsButton').click(function () {
@@ -142,9 +161,11 @@ $('#deleteButton').click(function () {
     let playerDeletedIndex = $('#playersSelect option:selected').val();
     GAME.players.splice(playerDeletedIndex,1);
     GAME.playerCount--;
+    GAME.resetGame();
     updateDropdown($('#playersSelect'), GAME);
     displayCurrentPlayerTurn(GAME);
     updatePlayerListScore ($('#playerScoreList'),GAME);
+    
   }
 });
 
@@ -163,7 +184,7 @@ $("#addPlayerForm").submit(function() {
 
   updateDropdown($('#playersSelect'),GAME);
   $('#results').hide();
-
+  
 });
 
 $("#newGameButton").click(function () {
@@ -177,15 +198,44 @@ $("#newGameButton").click(function () {
 });
 
 $('#rollButton').click(function () {
-  DICE = GAME.rollDice();
-  $('#diceImg').attr('src', 'img/red_dice'+ DICE + '.png');
+  
   //display dice
-  if(GAME.turn(GAME)){
-    $('#holdButton').prop('disabled',false);
-    //alert('test:' + GAME.players[GAME.currentPlayerIndex].totalScore);
+  
+
+  if(GAME.gameVariation === "oneDice") {
+   let DICE = GAME.rollDice();
+    $('#dice1Img').attr('src', 'img/red_dice'+ DICE + '.png');
+    $("#dice2Img").hide();
+    let turn = GAME.turn( DICE);
+    if(turn){
+      $('#holdButton').prop('disabled',false);
+      if(GAME.players[GAME.currentPlayerIndex].totalScore() >= 100) {
+        $('#winner').text('Congrats ' + GAME.players[GAME.currentPlayerIndex].name + '!');
+        GAME.players[GAME.currentPlayerIndex].submitTurnScore();
+        //GAME.sortPlayersByScore();
+        updatePlayerListScore ($('#scores'), GAME);
+        $('#results').show();
+        $('#gameScoresCard').hide();
+        $('#currentPlayerCard').hide();
+      }
+    }else{
+      GAME.nextPlayer();
+      //swapColor();
+      $('#holdButton').prop('disabled',true);
+    }
+  } else if (GAME.gameVariation === "twoDice") {
+    let dice1 = GAME.rollDice();
+    let dice2 = GAME.rollDice();
+    $("#dice2Img").show();
+    $('#dice1Img').attr("src", "img/red_dice" + dice1 + ".png");
+    $('#dice2Img').attr("src", "img/red_dice" + dice2 + ".png");
+    
+    let turn = GAME.twoDiceTurn(dice1, dice2);
+    $('#holdButton').prop('disabled',turn);
+    
+
+
     if(GAME.players[GAME.currentPlayerIndex].totalScore() >= 100) {
-      //alert('you won');
-     
       $('#winner').text('Congrats ' + GAME.players[GAME.currentPlayerIndex].name + '!');
       GAME.players[GAME.currentPlayerIndex].submitTurnScore();
       //GAME.sortPlayersByScore();
@@ -193,14 +243,10 @@ $('#rollButton').click(function () {
       $('#results').show();
       $('#gameScoresCard').hide();
       $('#currentPlayerCard').hide();
-      
     }
-  }else{
-    GAME.nextPlayer();
-    //swapColor();
-    $('#holdButton').prop('disabled',true);
-    
+
   }
+  
   updatePlayerListScore ($('#playerScoreList'), GAME);
   displayCurrentPlayerTurn(GAME);
 });
@@ -213,6 +259,18 @@ $('#holdButton').click(function () {
   $('#holdButton').prop('disabled',true);
   //$('#holdButton').prop('disabled','true');
 
+});
+
+$("#gameSelect").change(function() {
+  GAME.gameVariation = $('#gameSelect option:selected').val();
+  GAME.resetGame();
+  updatePlayerListScore ($('#playerScoreList'), GAME);
+  displayCurrentPlayerTurn(GAME);
+  $('#currentPlayerCard').show();
+  $('#gameScoresCard').show();
+  $('#newGameButton').show();
+
+  
 });
 });
 
