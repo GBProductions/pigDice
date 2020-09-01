@@ -79,6 +79,7 @@ Player.prototype.resetPlayer = function () {
   this.score = 0;
   this.turnScore = 0;
   this.numberTurns = 0;
+
 }
 
 Player.prototype.submitTurnScore = function () {
